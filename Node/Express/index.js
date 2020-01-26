@@ -1,36 +1,23 @@
 const express = require("express");
-
+const path = require("path")
 const app = express();
+const morgan = require('morgan');
+
+const indexRouter = require('./routes/IndexRoute')
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(morgan('dev'))
 
-const courses = [
-    { id: 1, name: "courses 1" },
-    { id: 2, name: "courses 2" },
-    { id: 3, name: "courses 3" }
-]
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => {
-    res.send("hello world");
+app.use((req, res, next) => {
+    console.log('Hello buddy')
+    next();
 })
 
-app.get('/api/courses', (req, res) => {
-    res.json(courses)
-})
-
-app.post('/api/courses', (req, res) => {
-    const course = {
-        id: courses.length + 1,
-        name: req.body.name
-    }
-    courses.push(course)
-    res.send(course);
-})
-app.get('/api/courses/:id', (req, res) => {
-    const course = courses.find(c => c.id === parseInt(req.params.id))
-    if (!course) res.status(404).send("ID cant found");
-    res.send(course);
-})
+app.use('/', indexRouter);
 
 
 const port = process.env.PORT || 5000;
